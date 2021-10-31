@@ -11,13 +11,8 @@ import javax.inject.Inject
 
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var mainActivityComponent: MainActivityComponent
-
-    @Inject
-    lateinit var model: MainViewModel
-
-    fun getMainActivityComponent(): MainActivityComponent = mainActivityComponent
-
+    lateinit var mainActivityComponent: MainActivityComponent
+        private set
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,7 +21,6 @@ class MainActivity : AppCompatActivity() {
         mainActivityComponent = DaggerMainActivityComponent.builder()
                 .activity(this)
                 .build()
-
 
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()

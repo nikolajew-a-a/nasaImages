@@ -1,7 +1,10 @@
 package com.example.nasaimages.data.model
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 import java.util.*
 
+@Parcelize
 class Data (
     val center: String,
     val title: String,
@@ -14,4 +17,4 @@ class Data (
     val media_type: String,
     val photographer: String,
     val location: String
-)
+) : Parcelable

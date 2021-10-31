@@ -9,66 +9,68 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
 import android.widget.Toast
+import androidx.core.view.isVisible
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.example.nasaimages.R
 import com.example.nasaimages.data.model.Item
+import com.example.nasaimages.databinding.FragmentDetailsBinding
+import com.example.nasaimages.databinding.MainFragmentBinding
+import com.example.nasaimages.di.viewmodel.injectViewModel
 import com.example.nasaimages.presentation.MainActivity
 import com.example.nasaimages.presentation.view.adapter.Adapter
 import com.example.nasaimages.presentation.viewmodel.MainViewModel
 import javax.inject.Inject
 
 class MainFragment : Fragment() {
-    private lateinit var recyclerView: RecyclerView
-    private lateinit var progressBar: ProgressBar
-    private lateinit var adapter: Adapter
-    private lateinit var layoutManager: RecyclerView.LayoutManager
-    private var items = ArrayList<Item>()
-    private lateinit var mainViewModel: MainViewModel
+    private var _binding: MainFragmentBinding? = null
+    private val binding get() = _binding!!
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View {
-        return inflater.inflate(R.layout.main_fragment, container, false)
+    private val mainViewModel: MainViewModel by injectViewModel()
+
+    private var layoutManager: RecyclerView.LayoutManager? = null
+    private lateinit var adapter: Adapter
+
+    companion object {
+        fun newInstance() = MainFragment()
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = MainFragmentBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        mainViewModel = (activity as MainActivity).getMainActivityComponent().getMainViewModel()
-
-        progressBar = view.findViewById(R.id.progress_bar)
-        recyclerView = view.findViewById(R.id.recycler_view)
 
         layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
-        recyclerView.layoutManager = layoutManager
-        recyclerView.setItemViewCacheSize(100);
-        adapter = Adapter(items)
-        recyclerView.adapter = adapter
+        adapter = Adapter(emptyList())
+        binding.recyclerView.layoutManager = layoutManager
+        binding.recyclerView.setItemViewCacheSize(100);
+        binding.recyclerView.adapter = adapter
 
-        mainViewModel.isLoading.observe(viewLifecycleOwner, Observer {
-            if(it) {
-                recyclerView.visibility = View.INVISIBLE
-                progressBar.visibility = View.VISIBLE
-            } else {
-                recyclerView.visibility = View.VISIBLE
-                progressBar.visibility = View.INVISIBLE
-            }
+        mainViewModel.isLoading.observe(viewLifecycleOwner, {
+            binding.recyclerView.isVisible = !it
+            binding.progressBar.isVisible = it
         })
-        mainViewModel.items.observe(viewLifecycleOwner, Observer { list: List<Item> -> adapter.setItems(list) })
-        mainViewModel.errorMessage.observe(viewLifecycleOwner, Observer {
+        mainViewModel.items.observe(viewLifecycleOwner,
+            { list: List<Item> -> adapter.setItems(list) })
+        mainViewModel.errorMessage.observe(viewLifecycleOwner, {
             if (it.first) {
                 Toast.makeText(this.activity, it.second, Toast.LENGTH_LONG).show()
                 mainViewModel.errorMessageDisplayed()
             }
         })
-
-        mainViewModel.getImages()
-
     }
 
-    companion object {
-        fun newInstance() =
-            MainFragment()
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

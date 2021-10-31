@@ -13,8 +13,8 @@ import javax.inject.Singleton
 class NetworkModule {
     @Singleton
     @Provides
-    fun provideNetwork(jsonPlaceHolderApi: JsonPlaceHolderApi?): Network {
-        return Network(jsonPlaceHolderApi!!)
+    fun provideNetwork(jsonPlaceHolderApi: JsonPlaceHolderApi): Network {
+        return Network(jsonPlaceHolderApi)
     }
 
     @Singleton
@@ -23,7 +23,6 @@ class NetworkModule {
         val retrofit = Retrofit.Builder()
                 .baseUrl(BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .build()
         return retrofit.create(JsonPlaceHolderApi::class.java)
     }

@@ -5,7 +5,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 import com.example.nasaimages.R
 import com.example.nasaimages.data.model.Item
 import com.example.nasaimages.presentation.MainActivity
@@ -25,7 +24,7 @@ class Adapter(private var items: List<Item>) : RecyclerView.Adapter<Adapter.View
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(items, position)
+        holder.bind(items[position])
     }
 
     override fun getItemCount(): Int {
@@ -34,12 +33,10 @@ class Adapter(private var items: List<Item>) : RecyclerView.Adapter<Adapter.View
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val imageView: ImageView = itemView.findViewById(R.id.image_view)
-        private lateinit var item: Item
-        private var itemPosition: Int = -1
+        private var item: Item? = null
 
-        fun bind(items: List<Item>, itemPosition: Int) {
-            this.item = items[itemPosition]
-            this.itemPosition = itemPosition
+        fun bind(item: Item) {
+            this.item = item
             Picasso.get()
                 .load(item.links?.get(0)?.href)
                 .placeholder(R.drawable.ic_launcher_foreground)
@@ -48,11 +45,13 @@ class Adapter(private var items: List<Item>) : RecyclerView.Adapter<Adapter.View
 
         init {
             itemView.setOnClickListener {
-                (itemView.context as MainActivity).supportFragmentManager
-                    .beginTransaction()
-                    .addToBackStack(null)
-                    .replace(R.id.container, DetailsFragment.newInstance(itemPosition))
-                    .commit()
+                item?.let {
+                    (itemView.context as MainActivity).supportFragmentManager
+                        .beginTransaction()
+                        .addToBackStack(null)
+                        .replace(R.id.container, DetailsFragment.newInstance(it))
+                        .commit()
+                }
             }
         }
     }

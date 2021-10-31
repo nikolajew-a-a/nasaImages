@@ -1,7 +1,7 @@
 package com.example.nasaimages.di.components
 
 import android.app.Activity
-import com.example.nasaimages.di.modules.MainViewModelModule
+import androidx.lifecycle.ViewModelProvider
 import com.example.nasaimages.di.modules.NetworkModule
 import com.example.nasaimages.di.modules.RepositoryModule
 import com.example.nasaimages.di.modules.SingleUseCaseModule
@@ -9,9 +9,16 @@ import com.example.nasaimages.presentation.viewmodel.MainViewModel
 import dagger.BindsInstance
 import dagger.Component
 import javax.inject.Singleton
+import com.example.nasaimages.di.viewmodel.VMModel
 
 @Singleton
-@Component(modules = [MainViewModelModule::class, SingleUseCaseModule::class, RepositoryModule::class, NetworkModule::class])
+@Component(
+    modules = [
+        SingleUseCaseModule::class,
+        RepositoryModule::class,
+        NetworkModule::class,
+        VMModel::class]
+)
 interface MainActivityComponent {
     @Component.Builder
     interface Builder {
@@ -20,6 +27,7 @@ interface MainActivityComponent {
         fun build(): MainActivityComponent
     }
 
-    //fun inject(activity: MainViewModel)
     fun getMainViewModel(): MainViewModel
+
+    fun provideFactory(): ViewModelProvider.Factory
 }
